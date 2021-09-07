@@ -56,9 +56,12 @@ public class GameManager : MonoBehaviour
         // GameObject playerTemp = PhotonNetwork.Instantiate("Player", pos, rot, 0);
     }
 
+    // Lobby
     public void SetMt(int idx)
     {
         idxMt = idx;
         player.material = mtList[idxMt];
+        GameObject.Find("LobbyManager").GetComponent<LobbyManager>().SetColorProperty(idx);
     }
+
 }

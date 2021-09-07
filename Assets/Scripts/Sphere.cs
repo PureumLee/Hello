@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class Sphere : MonoBehaviour
+public class Sphere : MonoBehaviourPunCallbacks
 {
     private new Rigidbody rigidbody;
+    private PhotonView pv;
 
     private float v;
     private float h;
@@ -18,6 +21,14 @@ public class Sphere : MonoBehaviour
     private float turnSpeedValue = 200.0f;
 
     RaycastHit hit;
+
+    private int myMt;
+    public Material[] mtList;
+
+    private void Awake() 
+    {        
+        pv = GetComponent<PhotonView>();
+    }
 
     IEnumerator Start()
     {
@@ -52,5 +63,30 @@ public class Sphere : MonoBehaviour
         transform.Translate(dir.normalized * Time.deltaTime * moveSpeed, Space.Self);
         transform.Rotate(Vector3.up * Time.smoothDeltaTime * turnSpeed * r);
     }
+
+
+
+    public void SetColor(int num)
+    {
+        pv.RPC(nameof(ChangeColor), RpcTarget.AllViaServer, num);
+
+    }
+    
+    [PunRPC]
+    public void ChangeColor(int idx)
+    {
+        GetComponent<Renderer>().material = mtList[idx];
+        myMt = idx;
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (pv.IsMine)
+        {
+            pv.RPC(nameof(ChangeColor), newPlayer, myMt);
+        }
+    }
+
+
 
 }
